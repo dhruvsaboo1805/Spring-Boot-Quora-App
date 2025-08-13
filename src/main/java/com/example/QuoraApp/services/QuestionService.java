@@ -1,5 +1,7 @@
 package com.example.QuoraApp.services;
 
+import com.example.QuoraApp.dto.PaginationInfoDTO;
+import com.example.QuoraApp.dto.PaginationResponseDTO;
 import com.example.QuoraApp.dto.QuestionRequestDTO;
 import com.example.QuoraApp.dto.QuestionResponseDTO;
 import com.example.QuoraApp.mapper.QuestionMapper;
@@ -14,6 +16,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -79,10 +82,38 @@ public class QuestionService implements IQuestionService{
     }
 
     @Override
-    public Flux<QuestionResponseDTO> getQuestionsByTag(String tag, int pageOffset, int size) {
-        return questionRepository.findByTagsContainingIgnoreCase(tag , PageRequest.of(pageOffset , size))
+    public Mono<PaginationResponseDTO<QuestionResponseDTO>> getQuestionsByTag(String tag, int pageOffset, int size) {
+
+        Pageable pageable = PageRequest.of(pageOffset , size);
+
+        // get the page data
+        Mono<List<QuestionResponseDTO>> MainData = questionRepository.findByTagsContainingIgnoreCase(tag , pageable)
                 .map(QuestionMapper::toQuestionResponseDTO)
-                .doOnError(error -> System.out.println("Error searching questions with request to tags: " + error))
-                .doOnComplete(() -> System.out.println("Questions searched successfully with request to tags"));
+                .collectList();
+
+        // get the total page values
+        Mono<Long> countData = questionRepository.countByTag(tag);
+
+        // combine both results
+        return Mono.zip(MainData, countData, (data, totalRecords) -> {
+
+            long totalPages = (totalRecords + size - 1) / size; // Calculate total pages
+
+            // Build the pagination info block
+            PaginationInfoDTO paginationInfo = PaginationInfoDTO.builder()
+                    .totalRecords(totalRecords)
+                    .currentPage(pageOffset + 1) // pageOffset is 0-indexed, so we add 1 for display
+                    .totalPages((int) totalPages)
+                    .nextPage(pageOffset + 1 < totalPages ? pageOffset + 2 : null)
+                    .prevPage(pageOffset > 0 ? pageOffset : null)
+                    .build();
+
+            // Build the final response object
+            return PaginationResponseDTO.<QuestionResponseDTO>builder()
+                    .data(data)
+                    .pagination(paginationInfo)
+                    .build();
+        });
+
     }
 }

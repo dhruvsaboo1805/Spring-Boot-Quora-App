@@ -1,5 +1,6 @@
 package com.example.QuoraApp.controllers;
 
+import com.example.QuoraApp.dto.PaginationResponseDTO;
 import com.example.QuoraApp.dto.QuestionRequestDTO;
 import com.example.QuoraApp.dto.QuestionResponseDTO;
 import com.example.QuoraApp.services.IQuestionService;
@@ -55,13 +56,13 @@ public class QuestionController {
     }
 
     @GetMapping("/tag/{tag}")
-    public Flux<QuestionResponseDTO> getQuestionsByTag(@PathVariable String tag,
-                                                       @RequestParam(defaultValue = "0") int pageOffset,
-                                                       @RequestParam(defaultValue = "10") int size
+    public Mono<PaginationResponseDTO<QuestionResponseDTO>> getQuestionsByTag(@PathVariable String tag,
+                                                                              @RequestParam(defaultValue = "0") int pageOffset,
+                                                                              @RequestParam(defaultValue = "10") int size
     ) {
         return questionService.getQuestionsByTag(tag , pageOffset , size)
                 .doOnError(error -> System.out.println("Error fetching questions with request to tags: " + error))
-                .doOnComplete(() -> System.out.println("Questions fetched successfully with request to tags"));
+                .doOnSuccess(response -> System.out.println("Questions fetched successfully with request to tags"));
     }
 
 }
