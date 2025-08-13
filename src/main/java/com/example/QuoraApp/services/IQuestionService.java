@@ -5,8 +5,12 @@ import com.example.QuoraApp.dto.QuestionResponseDTO;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+
 public interface IQuestionService {
     Mono<QuestionResponseDTO> createQuestion(QuestionRequestDTO questionRequestDTO);
     Flux<QuestionResponseDTO> searchQuestions(String query , int pageOffset , int size);
     Flux<QuestionResponseDTO> getAllQuestions(String cursor , int size);
+    Mono<QuestionResponseDTO> getQuestionById(String id);
+    Mono<Void> deleteQuestionById(String id);
+    Flux<QuestionResponseDTO> getQuestionsByTag(String tag , int pageOffset , int size);
 }

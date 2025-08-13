@@ -23,7 +23,9 @@ public class QuestionController {
 
     @GetMapping("/{id}")
     public Mono<QuestionResponseDTO> getQuestionById(@PathVariable String id) {
-        throw new UnsupportedOperationException("Not implemented");
+       return questionService.getQuestionById(id)
+               .doOnSuccess(response -> System.out.println("Question fetched successfully: " + response))
+               .doOnError(error -> System.out.println("Error fetching question: " + error));
     }
 
     @GetMapping()
@@ -36,9 +38,11 @@ public class QuestionController {
                 .doOnComplete(() -> System.out.println("Questions fetched successfully"));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public Mono<Void> deleteQuestionById(@PathVariable String id) {
-        throw new UnsupportedOperationException("Not implemented");
+        return questionService.deleteQuestionById(id)
+                .doOnSuccess(response -> System.out.println("Question Deleted successfully: " + response))
+                .doOnError(error -> System.out.println("Error Deleting question: " + error));
     }
 
     @GetMapping("/search")
@@ -52,10 +56,12 @@ public class QuestionController {
 
     @GetMapping("/tag/{tag}")
     public Flux<QuestionResponseDTO> getQuestionsByTag(@PathVariable String tag,
-                                                       @RequestParam(defaultValue = "0") int page,
+                                                       @RequestParam(defaultValue = "0") int pageOffset,
                                                        @RequestParam(defaultValue = "10") int size
     ) {
-        throw new UnsupportedOperationException("Not implemented");
+        return questionService.getQuestionsByTag(tag , pageOffset , size)
+                .doOnError(error -> System.out.println("Error fetching questions with request to tags: " + error))
+                .doOnComplete(() -> System.out.println("Questions fetched successfully with request to tags"));
     }
 
 }

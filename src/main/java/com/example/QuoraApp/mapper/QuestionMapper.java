@@ -9,6 +9,7 @@ public class QuestionMapper {
         return QuestionResponseDTO.builder()
                 .id(question.getId())
                 .title(question.getTitle())
+                .tags(question.getTags())
                 .content(question.getContent())
                 .createdAt(question.getCreatedAt())
                 .build();

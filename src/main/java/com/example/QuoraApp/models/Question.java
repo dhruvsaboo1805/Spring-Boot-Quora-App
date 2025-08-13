@@ -12,6 +12,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -29,6 +30,9 @@ public class Question {
     @NotBlank(message = "Content is required")
     @Size(min = 10, max = 1000, message = "Content must be between 10 and 1000 characters")
     private String content;
+
+    @Size(min = 1 , message = "At least one tag is required")
+    List<String> tags;
 
     @CreatedDate
     private LocalDateTime createdAt;

@@ -25,6 +25,7 @@ public class QuestionService implements IQuestionService{
         Question question = Question.builder()
                 .title(questionRequestDTO.getTitle())
                 .content(questionRequestDTO.getContent())
+                .tags(questionRequestDTO.getTags())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -60,5 +61,28 @@ public class QuestionService implements IQuestionService{
                     .doOnComplete(() -> System.out.println("Questions fetched successfully"));
         }
 
+    }
+
+    @Override
+    public Mono<QuestionResponseDTO> getQuestionById(String id) {
+        return questionRepository.findById(id)
+                .map(QuestionMapper::toQuestionResponseDTO)
+                .doOnSuccess(response -> System.out.println("Question Fetched successfully: " + response))
+                .doOnError(error -> System.out.println("Error Fetching question: " + error));
+    }
+
+    @Override
+    public Mono<Void> deleteQuestionById(String id) {
+        return questionRepository.deleteById(id)
+                .doOnSuccess(response -> System.out.println("Question Fetched successfully: " + response))
+                .doOnError(error -> System.out.println("Error Fetching question: " + error));
+    }
+
+    @Override
+    public Flux<QuestionResponseDTO> getQuestionsByTag(String tag, int pageOffset, int size) {
+        return questionRepository.findByTagsContainingIgnoreCase(tag , PageRequest.of(pageOffset , size))
+                .map(QuestionMapper::toQuestionResponseDTO)
+                .doOnError(error -> System.out.println("Error searching questions with request to tags: " + error))
+                .doOnComplete(() -> System.out.println("Questions searched successfully with request to tags"));
     }
 }

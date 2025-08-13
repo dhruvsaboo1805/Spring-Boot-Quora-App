@@ -19,4 +19,7 @@ public interface IQuestionRepository extends ReactiveMongoRepository<Question, S
 
     Flux<Question> findTop10ByOrderByCreatedAtAsc();
 
+    @Query("{ 'tags' : { $regex : ?0 , $options : 'i' } }")
+    Flux<Question> findByTagsContainingIgnoreCase(String searchTerm , Pageable pageable);
+
 }
