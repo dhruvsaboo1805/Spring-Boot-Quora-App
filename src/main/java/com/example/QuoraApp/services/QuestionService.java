@@ -4,8 +4,11 @@ import com.example.QuoraApp.dto.PaginationInfoDTO;
 import com.example.QuoraApp.dto.PaginationResponseDTO;
 import com.example.QuoraApp.dto.QuestionRequestDTO;
 import com.example.QuoraApp.dto.QuestionResponseDTO;
+import com.example.QuoraApp.enums.TargetType;
+import com.example.QuoraApp.events.ViewCountEvent;
 import com.example.QuoraApp.mapper.QuestionMapper;
 import com.example.QuoraApp.models.Question;
+import com.example.QuoraApp.producers.KafkaEventProducer;
 import com.example.QuoraApp.repositories.IQuestionRepository;
 import com.example.QuoraApp.utils.CursorUtils;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,8 @@ import java.util.List;
 public class QuestionService implements IQuestionService{
 
     private final IQuestionRepository questionRepository;
+    private final KafkaEventProducer kafkaEventProducer;
+
     @Override
     public Mono<QuestionResponseDTO> createQuestion(QuestionRequestDTO questionRequestDTO) {
         Question question = Question.builder()
@@ -68,10 +73,18 @@ public class QuestionService implements IQuestionService{
 
     @Override
     public Mono<QuestionResponseDTO> getQuestionById(String id) {
+//        return questionRepository.findById(id)
+//                .map(QuestionMapper::toQuestionResponseDTO)
+//                .doOnSuccess(response -> System.out.println("Question Fetched successfully: " + response))
+//                .doOnError(error -> System.out.println("Error Fetching question: " + error));
         return questionRepository.findById(id)
                 .map(QuestionMapper::toQuestionResponseDTO)
-                .doOnSuccess(response -> System.out.println("Question Fetched successfully: " + response))
-                .doOnError(error -> System.out.println("Error Fetching question: " + error));
+                .doOnError(error -> System.out.println("Error fetching question: " + error))
+                .doOnSuccess(response -> {
+                    System.out.println("Question fetched successfully: " + response);
+                    ViewCountEvent viewCountEvent = new ViewCountEvent(id, TargetType.Question, LocalDateTime.now());
+                    kafkaEventProducer.publishViewCountEvent(viewCountEvent);
+                });
     }
 
     @Override
