@@ -9,9 +9,9 @@ public class QuestionMapper {
         return QuestionResponseDTO.builder()
                 .id(question.getId())
                 .title(question.getTitle())
-                .tags(question.getTags())
+//                .tags(question.getTags())
                 .content(question.getContent())
-                .views(question.getViews())
+//                .views(question.getViews())
                 .createdAt(question.getCreatedAt())
                 .build();
     }

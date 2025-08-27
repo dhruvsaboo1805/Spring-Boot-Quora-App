@@ -3,11 +3,14 @@ package com.example.QuoraApp.controllers;
 import com.example.QuoraApp.dto.PaginationResponseDTO;
 import com.example.QuoraApp.dto.QuestionRequestDTO;
 import com.example.QuoraApp.dto.QuestionResponseDTO;
+import com.example.QuoraApp.models.QuestionElasticSearchDocument;
 import com.example.QuoraApp.services.IQuestionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -63,6 +66,11 @@ public class QuestionController {
         return questionService.getQuestionsByTag(tag , pageOffset , size)
                 .doOnError(error -> System.out.println("Error fetching questions with request to tags: " + error))
                 .doOnSuccess(response -> System.out.println("Questions fetched successfully with request to tags"));
+    }
+
+    @GetMapping("/elasticsearch")
+    public List<QuestionElasticSearchDocument> searchQuestionsByElasticsearch(@RequestParam String query) {
+        return questionService.searchQuestionsByElasticsearch(query);
     }
 
 }

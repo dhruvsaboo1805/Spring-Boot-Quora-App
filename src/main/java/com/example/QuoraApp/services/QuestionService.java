@@ -8,7 +8,9 @@ import com.example.QuoraApp.enums.TargetType;
 import com.example.QuoraApp.events.ViewCountEvent;
 import com.example.QuoraApp.mapper.QuestionMapper;
 import com.example.QuoraApp.models.Question;
+import com.example.QuoraApp.models.QuestionElasticSearchDocument;
 import com.example.QuoraApp.producers.KafkaEventProducer;
+import com.example.QuoraApp.repositories.IQuestionElasticSearchRepository;
 import com.example.QuoraApp.repositories.IQuestionRepository;
 import com.example.QuoraApp.utils.CursorUtils;
 import lombok.RequiredArgsConstructor;
@@ -27,19 +29,25 @@ public class QuestionService implements IQuestionService{
 
     private final IQuestionRepository questionRepository;
     private final KafkaEventProducer kafkaEventProducer;
+    private final IQuestionElasticSearchRepository questionElasticSearchRepository;
+    private final QuestionElasticSearchIndexService questionElasticSearchIndexService;
 
     @Override
     public Mono<QuestionResponseDTO> createQuestion(QuestionRequestDTO questionRequestDTO) {
         Question question = Question.builder()
                 .title(questionRequestDTO.getTitle())
                 .content(questionRequestDTO.getContent())
-                .tags(questionRequestDTO.getTags())
+//                .tags(questionRequestDTO.getTags())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
 
         return questionRepository.save(question)
-            .map(QuestionMapper::toQuestionResponseDTO)
+//            .map(QuestionMapper::toQuestionResponseDTO)
+                .map(savedQuestion -> {
+                    questionElasticSearchIndexService.createQuestionIndex(savedQuestion); // dumping the question to elasticsearch
+            return QuestionMapper.toQuestionResponseDTO(savedQuestion);
+        })
             .doOnSuccess(response -> System.out.println("Question created successfully: " + response))
             .doOnError(error -> System.out.println("Error creating question: " + error));
     }
@@ -128,5 +136,9 @@ public class QuestionService implements IQuestionService{
                     .build();
         });
 
+    }
+
+    public List<QuestionElasticSearchDocument> searchQuestionsByElasticsearch(String query) {
+        return questionElasticSearchRepository.findByTitleContainingOrContentContaining(query, query);
     }
 }

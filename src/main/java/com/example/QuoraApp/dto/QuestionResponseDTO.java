@@ -13,7 +13,7 @@ public class QuestionResponseDTO {
     private String id;
     private String title;
     private String content;
-    List<String> tags;
-    private Integer views;
+//    List<String> tags;
+//    private Integer views;
     private LocalDateTime createdAt;
 }

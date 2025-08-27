@@ -7,6 +7,8 @@ spring:
       port: 27017
       database: quora_db
       auto-index-creation: true
+  elasticsearch:
+    uris: http://localhost:9200
   kafka:
     # This is the address from your docker-compose.yml's ports section
     bootstrap-servers: localhost:9092
