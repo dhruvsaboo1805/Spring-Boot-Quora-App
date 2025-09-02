@@ -23,7 +23,7 @@ public class UserController {
                 .doOnError(error -> System.out.println("Error creating question: " + error));
     }
 
-    @PostMapping("/{userId}/follow/{questionId}")
+    @PostMapping("/{userId}/follow/question/{questionId}")
     public Mono<CreateUserResponseDTO> followQuestion(@PathVariable String userId, @PathVariable String questionId) {
         return userService.followQuestion(userId , questionId)
                 .doOnSuccess(response -> System.out.println("FollowQuestion done successfully: " + response))
@@ -35,5 +35,12 @@ public class UserController {
         return userService.getUserFeeds(userId)
                 .doOnError(error -> System.out.println("Error fetching feeds: " + error))
                 .doOnComplete(() -> System.out.println("User Feeds fetched successfully"));
+    }
+
+    @PostMapping("/{followerId}/follow/user/{followingId}")
+    public Mono<Void> followUser(@PathVariable String followerId , @PathVariable String followingId) {
+        return userService.followUser(followerId , followingId)
+                .doOnSuccess(response -> System.out.println("Follow User done successfully: " + response))
+                .doOnError(error -> System.out.println("Error following question: " + error));
     }
 }

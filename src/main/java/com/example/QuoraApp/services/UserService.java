@@ -66,10 +66,31 @@ public class UserService implements IUserService{
                     if (followedQuestionIds == null || followedQuestionIds.isEmpty()) {
                         return Flux.empty();
                     }
-                    // Fetch all questions whose IDs are in the followed list
                     return questionRepository.findAllById(followedQuestionIds);
                 })
                 .map(QuestionMapper::toQuestionResponseDTO)
                 .switchIfEmpty(Flux.error(new RuntimeException("User not found with id: " + userId)));
+    }
+
+    @Override
+    public Mono<Void> followUser(String followerId, String followingId) {
+
+        Mono<User> followerMono = userRepository.findById(followerId);
+        Mono<User> followingMono = userRepository.findById(followingId);
+
+        return Mono.zip(followerMono, followingMono)
+                .flatMap(tuple -> {
+                    User follower = tuple.getT1();
+                    User following = tuple.getT2();
+
+                    if (!follower.getFollowingUserIds().contains(followingId)) {
+                        follower.getFollowingUserIds().add(followingId);
+                    }
+                    if (!following.getFollowerUserIds().contains(followerId)) {
+                        following.getFollowerUserIds().add(followerId);
+                    }
+
+                    return userRepository.save(follower).then(userRepository.save(following));
+                }).then();
     }
 }

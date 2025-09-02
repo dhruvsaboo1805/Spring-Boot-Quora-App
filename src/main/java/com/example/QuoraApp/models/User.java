@@ -31,6 +31,10 @@ public class User {
 
     private List<String> followedQuestionIds = new ArrayList<>();
 
+    private List<String> followingUserIds = new ArrayList<>();
+
+    private List<String> followerUserIds = new ArrayList<>();
+
     @CreatedDate
     private LocalDateTime createdAt;
 

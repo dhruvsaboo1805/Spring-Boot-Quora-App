@@ -10,5 +10,7 @@ public interface IUserService {
     Mono<CreateUserResponseDTO> createUser(CreateUserRequestDTO createUserRequestDTO);
     Mono<CreateUserResponseDTO> followQuestion(String userId , String questionId);
     Flux<QuestionResponseDTO> getUserFeeds(String userId);
+    Mono<Void> followUser(String followerId, String followingId);
+//    Flux<QuestionResponseDTO> getUserFollowerFeed(String userId);
 
 }

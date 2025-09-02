@@ -17,5 +17,7 @@ public class CreateUserResponseDTO {
     private String name;
     private String phoneNumber;
     private List<String> followedQuestionIds;
+    private List<String> followingUserIds;
+    private List<String> followerUserIds;
     private LocalDateTime createdAt;
 }

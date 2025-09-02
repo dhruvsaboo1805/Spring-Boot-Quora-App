@@ -10,6 +10,8 @@ public class UserMapper {
                 .name(user.getName())
                 .phoneNumber(user.getPhoneNumber())
                 .followedQuestionIds(user.getFollowedQuestionIds())
+                .followerUserIds(user.getFollowerUserIds())
+                .followingUserIds(user.getFollowingUserIds())
                 .createdAt(user.getCreatedAt())
                 .build();
     }
